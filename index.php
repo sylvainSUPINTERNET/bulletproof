@@ -12,10 +12,14 @@ var_dump($_SESSION);
 
 //session_destroy();
 
-if(isset($_SESSION['current_user'])){
+
+//AUTHENTIFICATION
+if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
     var_dump($_SESSION);
     ?>
         <a href="/bulletproof/logout.php">Logout</a>
+    <br>
+    <br>
     <?php
 }else{
     var_dump("pas connecté");
@@ -87,7 +91,69 @@ if(isset($_SESSION['current_user'])){
         }
     }
 
-    //todo: display all post
+}
+
+
+
+//POST
+
+//todo: display all post connected / non connected
+
+if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
+
+
+    //List user
+    $stmt = $db->prepare('
+        SELECT name,id FROM `user`
+    ');
+    $stmt->execute();
+    $users = $stmt->fetchAll();
+    if(sizeof($users) !== 0) {
+        echo "List des users";
+        ?>
+        <form method="post" action="index.php">
+            <select id="select" name="user_to_delete">
+                <?php
+                foreach($users as $user){
+                    ?>
+                    <option value=<?php echo $user["name"] ?>><?php echo $user["name"] ?></option>
+                    <?php
+                }
+                ?>
+            </select>
+            <input type="submit" value="delete User">
+
+        </form>
+        <?php
+    }else{
+        echo "No users yet !";
+
+    }
+
+    //delete user
+    if(isset($_POST['user_to_delete']) && !empty($_POST['user_to_delete'])){
+        $userToDeleleteName = trim(htmlspecialchars(htmlentities($_POST['user_to_delete'])));
+        $stmt = $db->prepare('
+        DELETE FROM `user` WHERE name =:name
+    ');
+        $stmt->bindParam(':name', $userToDeleleteName, PDO::PARAM_STR);
+        $result = $stmt->execute();
+        if($result !== 0){
+            //case user deleted hhiself
+            if($_SESSION['current_user'] === $userToDeleleteName){
+                session_destroy(); //destroy the session
+            }
+        }
+    }
+
+
+    //list posts (connected)
+    ?>
+    <br>
+    <br>
+    <form method="post" action="index.php"><textarea name="message"></textarea><input type="submit" value="send message"></form>
+    <?php
+
     $stmt = $db->prepare('
         SELECT * FROM `post`
     ');
@@ -100,15 +166,63 @@ if(isset($_SESSION['current_user'])){
         var_dump($result);
         echo  "</pre>";
 
-
-
-
     }else{
         echo "no posts yet !";
 
     }
 
 
+
+    //add new post
+    if(isset($_POST['message']) && !empty($_POST['message'])){
+        $message = htmlspecialchars(htmlentities($_POST['message']));
+        $message = trim($message);
+
+        $author = $_SESSION['current_user'];
+
+        if($message){
+            //get author_id (user id)
+            $stmt = $db->prepare('
+        SELECT * FROM `user` WHERE `name`= :name
+        ');
+            $stmt->bindParam(':name', $author, PDO::PARAM_STR);
+            $stmt->execute();
+            $result = $stmt->fetchAll();
+
+            if($result[0]["id"]){
+                $id_author = $result[0]["id"];
+
+                //insert new message
+                $stmt = $db->prepare('
+                INSERT INTO `post` (`id_author`, `message`)
+                VALUES (:id_author, :message)');
+
+                $stmt->bindParam(':id_author', $id_author);
+                $stmt->bindParam(':message', $message);
+                $result = $stmt->execute();
+
+            }
+
+        }else{
+            echo "error message or name (session) not set !";
+        }
+
+    }
+}else{
+    $stmt = $db->prepare('
+        SELECT * FROM `post`
+    ');
+    $stmt->execute();
+    $result = $stmt->fetchAll();
+    if(sizeof($result) !== 0) {
+        echo "<pre>";
+        echo "List des postes";
+        echo "\n";
+        var_dump($result);
+        echo  "</pre>";
+
+    }else{
+        echo "no posts yet !";
+
+    }
 }
-
-
