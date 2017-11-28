@@ -2,7 +2,7 @@
 
 Get started 
 
-    import tables sql from 
+    import tables sql from tables_SQL
 
 ---
 
@@ -10,7 +10,7 @@ Get started
 
 ***
 
-    Register or login on app (127.0.0.1/msgboard/project)
+    Register or login on app (127.0.0.1/bulletproof)
 
 ___
 
