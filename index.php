@@ -17,6 +17,7 @@ var_dump($_SESSION);
 if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
     var_dump($_SESSION);
     ?>
+    <br>
         <a href="/bulletproof/logout.php">Logout</a>
     <br>
     <br>
@@ -24,16 +25,16 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
 }else{
     var_dump("pas connecté");
     ?>
-    <form method="POST" action="index.php">
-        <input type="text" name="register_name" placeholder="name">
-        <input type="password" name="register_password" placeholder="password">
+    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+        <input type="text" name="register_name" placeholder="name" required>
+        <input type="password" name="register_password" placeholder="password" required>
         <input type="submit" value="Register">
     </form>
     <br>
     <br>
     <?php
     //todo: register
-    if(isset($_POST['register_name']) && !empty($_POST['register_name']) && isset($_POST['register_password']) && !empty($_POST['register_password'])  ){
+    if(isset($_POST['register_name']) && !empty($_POST['register_name']) && isset($_POST['register_password']) && !empty($_POST['register_password'] && $_SERVER["REQUEST_METHOD"] == "POST")  ){
             $register_name = trim(htmlspecialchars(htmlentities($_POST['register_name'])));
             $register_password = trim(htmlspecialchars(htmlentities($_POST['register_password'])));
 
@@ -56,14 +57,14 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
 
     }
     ?>
-    <form method="post" action="index.php">
-        <input type="text" name="login_name" placeholder="name">
-        <input type="password" name="login_password" placeholder="password">
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+        <input type="text" name="login_name" placeholder="name" required>
+        <input type="password" name="login_password" placeholder="password" required>
         <input type="submit" value="Login">
     </form>
     <?php
     //todo: login
-    if(isset($_POST['login_name']) && !empty($_POST['login_name']) && isset($_POST['login_password']) && !empty($_POST['login_password'])  ) {
+    if(isset($_POST['login_name']) && !empty($_POST['login_name']) && isset($_POST['login_password']) && !empty($_POST['login_password']) && $_SERVER["REQUEST_METHOD"] == "POST"  ) {
         $login_name = trim(htmlspecialchars(htmlentities($_POST['login_name'])));
         $login_password = trim(htmlspecialchars(htmlentities($_POST['login_password'])));
 
@@ -111,8 +112,8 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
     if(sizeof($users) !== 0) {
         echo "List des users";
         ?>
-        <form method="post" action="index.php">
-            <select id="select" name="user_to_delete">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+            <select id="select" name="user_to_delete" required>
                 <?php
                 foreach($users as $user){
                     ?>
@@ -131,7 +132,7 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
     }
 
     //delete user
-    if(isset($_POST['user_to_delete']) && !empty($_POST['user_to_delete'])){
+    if(isset($_POST['user_to_delete']) && !empty($_POST['user_to_delete']) && $_SERVER["REQUEST_METHOD"] == "POST"){
         $userToDeleleteName = trim(htmlspecialchars(htmlentities($_POST['user_to_delete'])));
         $stmt = $db->prepare('
         DELETE FROM `user` WHERE name =:name
@@ -151,7 +152,7 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
     ?>
     <br>
     <br>
-    <form method="post" action="index.php"><textarea name="message"></textarea><input type="submit" value="send message"></form>
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"><textarea name="message" required></textarea><input type="submit" value="send message"></form>
     <?php
 
     $stmt = $db->prepare('
