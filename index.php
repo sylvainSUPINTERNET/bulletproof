@@ -8,14 +8,14 @@ require './db/dbManager.php';
 
 
 session_start();
-var_dump($_SESSION);
+//var_dump($_SESSION);
 
 //session_destroy();
 
 
 //AUTHENTIFICATION
 if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
-    var_dump($_SESSION);
+    //var_dump($_SESSION);
     ?>
     <br>
         <a href="/bulletproof/logout.php">Logout</a>
@@ -33,14 +33,14 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
     <br>
     <br>
     <?php
-    //todo: register
+    //register
     if(isset($_POST['register_name']) && !empty($_POST['register_name']) && isset($_POST['register_password']) && !empty($_POST['register_password'] && $_SERVER["REQUEST_METHOD"] == "POST")  ){
             $register_name = trim(htmlspecialchars(htmlentities($_POST['register_name'])));
             $register_password = trim(htmlspecialchars(htmlentities($_POST['register_password'])));
 
         $hash = password_hash($register_password,PASSWORD_DEFAULT);
 
-        //register
+
         $stmt = $db->prepare('
     INSERT INTO `user` (`name`, `password`)
     VALUES (:name, :password)');
@@ -50,7 +50,7 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
         $result = $stmt->execute();
         if($result){
             $_SESSION['current_user'] = $register_name;
-            var_dump("register session open " . $_SESSION['current_user']);
+            var_dump("register session is open yet ");
             //session_destroy();
         }
 
@@ -63,7 +63,7 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
         <input type="submit" value="Login">
     </form>
     <?php
-    //todo: login
+    //login
     if(isset($_POST['login_name']) && !empty($_POST['login_name']) && isset($_POST['login_password']) && !empty($_POST['login_password']) && $_SERVER["REQUEST_METHOD"] == "POST"  ) {
         $login_name = trim(htmlspecialchars(htmlentities($_POST['login_name'])));
         $login_password = trim(htmlspecialchars(htmlentities($_POST['login_password'])));
@@ -77,17 +77,17 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
         $stmt->execute();
         $result = $stmt->fetchAll();
         if (sizeof($result) !== 0) {
-            var_dump($result);
+            //var_dump($result);
             echo "<pre>";
-            var_dump("my hash from user password " . $hash);
+            //var_dump("my hash from user password " . $hash);
             $hash_from_db = $result[0]["password"];
-            var_dump($hash_from_db);
-            var_dump(password_verify($login_password, $hash_from_db));
+            //var_dump($hash_from_db);
+            //var_dump(password_verify($login_password, $hash_from_db));
             echo "</pre>";
 
             if (password_verify($login_password, $hash_from_db)) {
                 $_SESSION['current_user'] = $login_name;
-                var_dump($_SESSION);
+                //var_dump($_SESSION);
             }
         }
     }
@@ -97,8 +97,6 @@ if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
 
 
 //POST
-
-//todo: display all post connected / non connected
 
 if(isset($_SESSION['current_user']) && !empty(trim($_SESSION['current_user']))){
 
